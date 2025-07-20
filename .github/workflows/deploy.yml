@@ -15,15 +15,15 @@ jobs:
 
     - name: "Configure AWS Credentials"
       uses: aws-actions/configure-aws-credentials@v4
-      with: 
+      with:
         aws-region: us-east-1
-        aws-access-key-id: ${{ secrets.AWS_ACCESSKEY }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRETKEY }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
 
     - name: Copy files to S3
       run: |
-        aws s3 sync . s3://${{ secrets.BUCKETNAME }} --delete --exclude ".git/*" --exclude ".github/*" --exclude "README.md"
+        aws s3 sync . s3://${{ secrets.BUCKET_NAME }} --delete --exclude ".git/*" --exclude ".github/*" --exclude "README.md"
 
     - name: Invalidate Cache CDN
       run: |
-        aws cloudfront create-invalidation --distribution-id ${{ secrets.CDN_ID }} --paths "/*"
+        aws cloudfront create-invalidation --distribution-id ${{ secrets.CDN_DISTRIBUTION_ID }} --paths "/*"

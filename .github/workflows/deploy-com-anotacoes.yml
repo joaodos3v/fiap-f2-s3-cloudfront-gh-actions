@@ -1,0 +1,36 @@
+# Aqui é o nome que será exibido no painel do GitHub Actions
+name: Deploy to s3
+
+# Aqui é a regra de "disparo": nosso workflow será executado sempre que tivermos um push na branch `main`.
+on:
+  push:
+    branches:
+      - main
+
+# Aqui vamos definir o que nosso workflow vai fazer, de fato.
+jobs:
+  deploy: # Esse aqui é nome do job
+    runs-on: ubuntu-latest # Escolhendo a plataforma na qual nosso workflow vai rodar
+
+    # Agora vamos definir, passo a passo, o que nosso job irá fazer.
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4.1.7
+
+    # Aqui estamos fazendo a autenticação na AWS e pegamos esse exemplo da própria documentação do GH Actions.
+    - name: "Configure AWS Credentials"
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: us-east-1
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+
+    # Aqui vamos copiar os arquivos para o S3. Sempre usamos a instrução "run" quando precisaremos rodar um comando aqui dentro.
+    # Já "uses" é para quando usamos um action específica (tipo reuso de código).
+    - name: Copy files to S3
+      run: |
+        aws s3 sync . s3://${{ secrets.BUCKET_NAME }} --delete --exclude ".git/*" --exclude ".github/*" --exclude "README.md"
+
+    - name: Invalidate Cache CDN
+      run: |
+        aws cloudfront create-invalidation --distribution-id ${{ secrets.CDN_DISTRIBUTION_ID }} --paths "/*"
