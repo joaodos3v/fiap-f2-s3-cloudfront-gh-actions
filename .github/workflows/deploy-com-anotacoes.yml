@@ -2,10 +2,11 @@
 name: Deploy to s3
 
 # Aqui é a regra de "disparo": nosso workflow será executado sempre que tivermos um push na branch `main`.
-on:
-  push:
-    branches:
-      - main
+# Comentei porque não quero que essa pipeline seja triggada também
+# on:
+#   push:
+#     branches:
+#       - main
 
 # Aqui vamos definir o que nosso workflow vai fazer, de fato.
 jobs:
